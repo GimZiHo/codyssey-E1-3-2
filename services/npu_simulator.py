@@ -5,12 +5,11 @@ EPSILON: float = 1e-9
 
 
 def calculate_mac(
-    self,
     pattern: Matrix,
     filter_matrix: Matrix,
 ) -> float:
     """패턴과 필터의 MAC 점수를 계산한다."""
-    self.validate_same_size(pattern, filter_matrix)
+    validate_same_size(pattern, filter_matrix)
 
     score: float = 0.0
 
@@ -24,8 +23,26 @@ def calculate_mac(
 
     return score
 
+
+def validate_same_size(
+    pattern: Matrix,
+    filter_matrix: Matrix,
+) -> None:
+    """패턴과 필터가 같은 크기의 정방행렬인지 검증한다."""
+    if pattern.size != filter_matrix.size:
+        raise ValueError("패턴과 필터의 크기가 같아야 합니다.")
+
+    size: int = pattern.size
+
+    if size == 0:
+        raise ValueError("행렬은 비어 있을 수 없습니다.")
+
+    for matrix in (pattern, filter_matrix):
+        if any(len(row) != size for row in matrix.values):
+            raise ValueError("행렬은 N×N 크기여야 합니다.")
+
+
 def judge(
-    self,
     first_score: float,
     second_score: float,
     first_label: str,
@@ -35,7 +52,7 @@ def judge(
     """두 점수를 비교하여 판정 라벨을 반환한다."""
 
     # 점수 차이가 허용오차보다 작으면 동점으로 처리한다.
-    if abs(first_score - second_score) < self.EPSILON:
+    if abs(first_score - second_score) < EPSILON:
         return undecided_label
 
     if first_score > second_score:
