@@ -42,14 +42,3 @@ def judge(
         return first_label
 
     return second_label
-
-def validate_same_size(
-    self,
-    pattern: Matrix,
-    filter_matrix: Matrix,
-) -> None:
-    """패턴과 필터의 크기가 같은지 검사한다."""
-    if pattern.size != filter_matrix.size:
-        raise ValueError(
-            "패턴과 필터의 크기가 일치하지 않습니다."
-        )
