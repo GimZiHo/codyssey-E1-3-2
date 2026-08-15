@@ -1,3 +1,5 @@
+"""콘솔 입력을 처리한다."""
+
 from typing import List
 
 from models.matrix import Matrix

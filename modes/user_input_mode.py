@@ -1,6 +1,6 @@
-from input_utils.console_input import input_matrix
+from io_utils.console_input import input_matrix
+from io_utils.console_output import print_user_result
 from models.matrix import Matrix
-from reports.console_reporter import print_user_result
 from services.npu_simulator import calculate_mac, judge, measure_average_time
 
 

@@ -1,3 +1,5 @@
+"""JSON 파일을 읽고 데이터를 검증한다."""
+
 import json
 
 from models.matrix import Matrix

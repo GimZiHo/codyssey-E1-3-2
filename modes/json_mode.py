@@ -1,4 +1,9 @@
-from input_utils.json_loader import (
+from io_utils.console_output import (
+    print_json_result,
+    print_performance_table,
+    print_summary,
+)
+from io_utils.json_loader import (
     create_matrix,
     extract_filter_size,
     extract_pattern_size,
@@ -7,11 +12,6 @@ from input_utils.json_loader import (
     normalize_label,
 )
 from models.matrix import Matrix
-from reports.console_reporter import (
-    print_json_result,
-    print_performance_table,
-    print_summary,
-)
 from services.npu_simulator import calculate_mac, judge, measure_average_time
 
 

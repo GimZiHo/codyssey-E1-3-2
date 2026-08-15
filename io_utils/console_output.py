@@ -1,3 +1,5 @@
+"""분석 결과를 콘솔에 출력한다."""
+
 def print_user_result(
     score_a: float,
     score_b: float,
