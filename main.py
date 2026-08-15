@@ -3,7 +3,7 @@ from modes.json_mode import run_json_mode
 from modes.user_input_mode import run_user_input_mode
 
 
-def main():
+def main() -> None:
     print("=== Mini NPU Simulator ===")
     mode = select_mode()
 

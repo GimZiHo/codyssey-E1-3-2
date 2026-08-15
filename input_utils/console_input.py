@@ -16,7 +16,7 @@ def select_mode() -> str:
             return mode
         print("입력 오류: 1 또는 2를 입력하세요.")
 
-def input_matrix(name, size) -> Matrix:
+def input_matrix(name: str, size: int) -> Matrix:
     """N×N 숫자를 입력받아 Matrix 객체로 반환한다."""
     print()
     print(f"[{name} 입력]")
@@ -34,7 +34,7 @@ def input_matrix(name, size) -> Matrix:
     return Matrix(rows)
 
 
-def input_row(row_number, size) -> List[float]:
+def input_row(row_number: int, size: int) -> List[float]:
     """올바른 한 행이 입력될 때까지 반복한다."""
     while True:
         text = input(f"{row_number}행: ")
@@ -45,12 +45,14 @@ def input_row(row_number, size) -> List[float]:
             print(f"입력 형식 오류: {error}")
 
 
-def parse_row(text, size) -> List[float]:
+def parse_row(text: str, size: int) -> List[float]:
     """입력 문자열을 숫자 리스트로 변환한다."""
     values = text.split()
 
     if len(values) != size:
-        raise ValueError(f"각 줄에 {size}개의 숫자를 입력하세요.")
+        raise ValueError(
+            f"각 줄에 {size}개의 숫자를 공백으로 구분해 입력하세요."
+        )
 
     try:
         return [float(value) for value in values]

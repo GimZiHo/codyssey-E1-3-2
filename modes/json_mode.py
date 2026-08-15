@@ -1,20 +1,25 @@
-from input_utils.json_loader import create_matrix, get_object, load_json
+from input_utils.json_loader import (
+    create_matrix,
+    extract_filter_size,
+    extract_pattern_size,
+    get_object,
+    load_json,
+    normalize_label,
+)
 from models.matrix import Matrix
 from reports.console_reporter import (
     print_json_result,
     print_performance_table,
     print_summary,
 )
-from services.npu_simulator import calculate_mac, judge
-from services.performance_analyzer import measure_average_time
-from utils.data_utils import extract_size, normalize_label
+from services.npu_simulator import calculate_mac, judge, measure_average_time
 
 
 DATA_FILENAME = "data.json"
 REPEAT_COUNT = 10
 
 
-def create_filters(data: dict, size: int, group_key: str) -> dict:
+def create_filter_group(data: dict, size: int, group_key: str) -> dict:
     """필터 키를 정규화하고 Matrix로 변환한다."""
     filters = {}
     for label, values in data.items():
@@ -30,10 +35,37 @@ def create_filters(data: dict, size: int, group_key: str) -> dict:
     return filters
 
 
-def analyze_pattern(key: str, data: dict, filters: dict) -> dict:
+def load_filter_groups(data: dict) -> dict:
+    """필터 그룹을 검증하고 크기별로 로드한다."""
+    loaded_filters = {}
+    print()
+    print("[필터 로드]")
+
+    for group_key, filter_data in data.items():
+        try:
+            size = extract_filter_size(group_key)
+            if not isinstance(filter_data, dict):
+                raise ValueError("필터 데이터는 객체여야 합니다.")
+            loaded_filters[group_key] = create_filter_group(
+                filter_data,
+                size,
+                group_key,
+            )
+            print(f"✓ {group_key} 필터 로드 완료 (Cross, X)")
+        except ValueError as error:
+            print(f"✗ {group_key} 필터 로드 실패: {error}")
+
+    return loaded_filters
+
+
+def analyze_pattern(
+    pattern_key: str,
+    pattern_data: dict,
+    filter_groups: dict,
+) -> dict:
     """패턴 하나를 검증하고 판정한다."""
     result = {
-        "key": key,
+        "key": pattern_key,
         "cross_score": None,
         "x_score": None,
         "judgment": None,
@@ -44,20 +76,19 @@ def analyze_pattern(key: str, data: dict, filters: dict) -> dict:
     }
 
     try:
-        size = extract_size(key, 3)
-        if not isinstance(data, dict):
+        size = extract_pattern_size(pattern_key)
+        if not isinstance(pattern_data, dict):
             raise ValueError("패턴 데이터는 객체여야 합니다.")
 
         group_key = f"size_{size}"
-        filter_data = filters.get(group_key)
-        if not isinstance(filter_data, dict):
+        filter_matrices = filter_groups.get(group_key)
+        if not isinstance(filter_matrices, dict):
             raise ValueError(f"{group_key} 필터가 없습니다.")
 
-        pattern = create_matrix(data.get("input"), size, key)
-        filter_matrices = create_filters(filter_data, size, group_key)
+        pattern = create_matrix(pattern_data.get("input"), size, pattern_key)
         cross_filter = filter_matrices["Cross"]
         x_filter = filter_matrices["X"]
-        expected = normalize_label(data.get("expected"))
+        expected = normalize_label(pattern_data.get("expected"))
 
         cross_score = calculate_mac(pattern, cross_filter)
         x_score = calculate_mac(pattern, x_filter)
@@ -71,7 +102,7 @@ def analyze_pattern(key: str, data: dict, filters: dict) -> dict:
             "status": "PASS" if judgment == expected else "FAIL",
             "sample": (pattern, cross_filter),
         })
-    except (TypeError, ValueError) as error:
+    except ValueError as error:
         result["reason"] = str(error)
 
     return result
@@ -99,15 +130,17 @@ def run_json_mode() -> None:
     """data.json 분석 모드를 실행한다."""
     try:
         data = load_json(DATA_FILENAME)
-        filters = get_object(data, "filters")
+        filter_data = get_object(data, "filters")
         patterns = get_object(data, "patterns")
     except ValueError as error:
         print(f"JSON 처리 실패: {error}")
         return
 
+    filter_groups = load_filter_groups(filter_data)
+
     results = []
     for key, pattern_data in patterns.items():
-        result = analyze_pattern(key, pattern_data, filters)
+        result = analyze_pattern(key, pattern_data, filter_groups)
         results.append(result)
         print_json_result(result)
 

@@ -1,3 +1,5 @@
+import time
+
 from models.matrix import Matrix
 
 
@@ -59,3 +61,21 @@ def judge(
         return first_label
 
     return second_label
+
+
+def measure_average_time(
+    pattern: Matrix,
+    filter_matrix: Matrix,
+    repeat_count: int,
+) -> float:
+    """MAC 연산을 반복하고 1회 평균 시간을 ms로 반환한다."""
+    if repeat_count <= 0:
+        raise ValueError("반복 횟수는 1 이상이어야 합니다.")
+
+    start_time = time.perf_counter()
+    for _ in range(repeat_count):
+        calculate_mac(pattern, filter_matrix)
+    end_time = time.perf_counter()
+
+    total_time_ms = (end_time - start_time) * 1000
+    return total_time_ms / repeat_count

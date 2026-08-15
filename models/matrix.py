@@ -10,6 +10,6 @@ class Matrix:
         """지정한 행과 열의 값을 반환한다."""
         return self.values[row][column]
 
-    def set_value(self, row, column, value)-> None:
+    def set_value(self, row, column, value) -> None:
         """지정한 행과 열에 값을 저장한다."""
         self.values[row][column] = value
